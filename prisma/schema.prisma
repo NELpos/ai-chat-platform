@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  username   String    @unique
+  email      String?   @unique
+  password   String?
+  phone      String?   @unique
+  github_id  String?   @unique
+  avatar     String?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  Message    Message[]
+  Chat       Chat[]
+  Events     Event[]
+}
+
+model Chat {
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  title     String?
+  Message   Message[]
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  Event     Event[]
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  role        Role
+  content     String
+  createdAt   DateTime @default(now())
+  toolCall    Json?
+  toolResults Json?
+  chat        Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+}
+
+enum Role {
+  user
+  assistant
+}
+
+model Event {
+  id          Int           @id @default(autoincrement())
+  type        EventType
+  title       String
+  description String
+  user        User?         @relation(fields: [userId], references: [id])
+  userId      Int?
+  chat        Chat?         @relation(fields: [chatId], references: [id])
+  chatId      String?
+  status      EventStatus
+  priority    EventPriority
+}
+
+enum EventType {
+  alert
+  jira
+}
+
+enum EventStatus {
+  open
+  ready
+  investigating
+  analysis
+  pending
+  notify
+  closed
+  review
+  l3_escalation
+  re_opened
+}
+
+enum EventPriority {
+  low
+  medium
+  high
+  critical
+}
