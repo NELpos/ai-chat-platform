@@ -11,48 +11,51 @@ export default function Page() {
 
   return (
     <div className="flex flex-col w-full max-w-2xl py-24 mx-auto stretch ">
-      {messages.map((message) => (
-        <div
-          key={message.id}
-          className={`flex items-start ${
-            message.role === "user" ? "justify-end" : "justify-start"
-          } mb-4`}
-        >
-          {message.role === "assistant" ? (
-            <img
-              src="https://cdn-icons-png.flaticon.com/128/6819/6819644.png"
-              alt="AI Profile"
-              className="mr-3 w-12 h-12 rounded-full"
-            />
-          ) : null}
-
-          {message.content && (
+      {messages.map(
+        (message) => (
+          console.log(message),
+          (
             <div
-              className={`relative max-w-fit p-3 rounded-lg shadow ${
-                message.role === "user"
-                  ? "bg-neutral-800 text-white ml-auto"
-                  : "bg-gray-200 text-black mr-auto"
-              }`}
+              key={message.id}
+              className={`flex items-start ${
+                message.role === "user" ? "justify-end" : "justify-start"
+              } mb-4`}
             >
-              {message.content}
-              <div
-                className={`absolute w-0 h-0 border-t-8 border-t-transparent ${
-                  message.role === "user"
-                    ? "border-l-8 border-l-neutral-800 right-0 -mr-2"
-                    : "border-r-8 border-r-gray-200 left-0 -ml-2"
-                }`}
-                style={{ top: "50%" }}
-              ></div>
-            </div>
-          )}
-          {message.role === "user" ? (
-            <img
-              src="https://ui.shadcn.com/avatars/02.png"
-              alt="User Profile"
-              className="ml-3 w-12 h-12 rounded-full"
-            />
-          ) : null}
-          <div>
+              {message.role === "assistant" ? (
+                <img
+                  src="https://cdn-icons-png.flaticon.com/128/6819/6819644.png"
+                  alt="AI Profile"
+                  className="mr-3 w-12 h-12 rounded-full"
+                />
+              ) : null}
+
+              {message.content && (
+                <div
+                  className={`relative max-w-fit p-3 rounded-lg shadow ${
+                    message.role === "user"
+                      ? "bg-neutral-800 text-white ml-auto"
+                      : "bg-gray-200 text-black mr-auto"
+                  }`}
+                >
+                  {message.content}
+                  <div
+                    className={`absolute w-0 h-0 border-t-8 border-t-transparent ${
+                      message.role === "user"
+                        ? "border-l-8 border-l-neutral-800 right-0 -mr-2"
+                        : "border-r-8 border-r-gray-200 left-0 -ml-2"
+                    }`}
+                    style={{ top: "50%" }}
+                  ></div>
+                </div>
+              )}
+              {message.role === "user" ? (
+                <img
+                  src="https://ui.shadcn.com/avatars/02.png"
+                  alt="User Profile"
+                  className="ml-3 w-12 h-12 rounded-full"
+                />
+              ) : null}
+              {/* <div>
             {message.toolInvocations?.map((toolInvocation) => {
               const { toolName, toolCallId, state } = toolInvocation;
 
@@ -85,9 +88,11 @@ export default function Page() {
                 );
               }
             })}
-          </div>
-        </div>
-      ))}
+          </div> */}
+            </div>
+          )
+        )
+      )}
 
       <form
         onSubmit={handleSubmit}

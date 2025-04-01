@@ -4,6 +4,7 @@ import getSession from "@/lib/session";
 import db from "@/lib/db";
 import { redirect } from "next/navigation";
 import { alertSchema } from "./schema";
+import { revalidatePath } from "next/cache";
 
 export async function uploadAlert(formData: FormData) {
   const data = {
@@ -37,10 +38,12 @@ export async function uploadAlert(formData: FormData) {
         },
       });
 
-      return event;
-
-      //revalidatePath("/home");
-      //   redirect(`/alerts`);
+      if (event) {
+        revalidatePath("/alerts");
+        return null;
+      } else {
+        return "error";
+      }
     }
   }
 }

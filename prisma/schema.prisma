@@ -20,9 +20,10 @@ model User {
   avatar     String?
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
-  Message    Message[]
-  Chat       Chat[]
-  Events     Event[]
+  messages   Message[]
+  chats      Chat[]
+  events     Event[]
+  settings   Setting[]
 }
 
 model Chat {
@@ -30,28 +31,25 @@ model Chat {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   title     String?
-  Message   Message[]
+  pageName  String
+  messages  Message[]
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
-  Event     Event[]
+  events    Event[]
 }
 
 model Message {
   id          String   @id @default(uuid())
-  role        Role
-  content     String
+  userMessage String
+  aiMessage   String
   createdAt   DateTime @default(now())
   toolCall    Json?
   toolResults Json?
-  chat        Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  chatId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-}
-
-enum Role {
-  user
-  assistant
+  chat        Chat?    @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int?
+  liked       Boolean  @default(false)
 }
 
 model Event {
@@ -90,4 +88,17 @@ enum EventPriority {
   medium
   high
   critical
+}
+
+model Setting {
+  id            Int      @id @default(autoincrement())
+  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int      @unique
+  alertPageSize Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum PageName {
+  alerts
 }

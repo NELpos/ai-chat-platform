@@ -7,4 +7,11 @@ export const alertSchema = z.object({
   type: z.enum(["alert", "jira"], {
     required_error: "Please select an type to display.",
   }),
+  status: z
+    .enum(["open", "closed"], {
+      required_error: "Please select an status to display.",
+    })
+    .optional(),
 });
+
+export type AlertType = z.infer<typeof alertSchema>;

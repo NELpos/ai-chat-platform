@@ -1,19 +1,53 @@
-import { Alert, columns } from "./columns";
+import { AppSidebar } from "@/components/blocks/app-sidebar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { getPageSize, initializeChatId } from "./actions";
 import { DataTable } from "./data-table";
-import db from "@/lib/db";
+import { columns } from "./columns";
 
 export default async function Alerts() {
-  // const { messages, input, handleInputChange, handleSubmit } = useChat();
-  const alerts = await db.event.findMany({
-    where: {
-      type: "jira",
-    },
-  });
-  console.log(alerts);
+  const initialPageSize = (await getPageSize()) || 10;
+
+  //generate chat id(if chat exists, return chat id, if not, create new chat)
+  const chatId = await initializeChatId("alerts");
 
   return (
-    <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={alerts} />
-    </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="#">Inventory</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Alerts</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+        </header>
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <DataTable columns={columns} initialPageSize={initialPageSize} />
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

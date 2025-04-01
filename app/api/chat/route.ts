@@ -4,6 +4,8 @@ import { bedrock } from "@ai-sdk/amazon-bedrock";
 import { openai } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { tools } from "../../../lib/ai/tools";
+import { alertSchema } from "@/app/alert/add/schema";
+import { saveChat } from "@/app/alerts/actions";
 //import saveChat from "@/lib/ai/actions";
 //import { saveChat } from "@/app/weather_chat/actions";
 
@@ -25,65 +27,58 @@ export async function GET() {
 // prompt: "Write a vegetarian lasagna recipe for 4 people.",
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
-
-  // const result = streamText({
-  //   model: bedrock("anthropic.claude-3-5-sonnet-20240620-v1:0"),
-  //   messages,
-  // });
+  const { messages, chatId } = await req.json();
+  //console.log(messages.at(-1));
 
   const lastUserMessage = messages.findLast(
     (message: any) => message.role === "user"
   )?.content;
 
+  // const lastMessages = messages.findLast();
+  // console.log(lastMessages);
+
   const result = streamText({
     model: openai("gpt-3.5-turbo"),
     system:
       "You are a friendly assistant! Show the results, but there’s no need to explain which functions were used.",
-    messages,
-    tools,
-    maxSteps: 2, // 최대 5단계로 나누기
-    async onStepFinish({ text, toolCalls, toolResults, finishReason, usage }) {
-      console.log("Step finished");
-      console.log("Tool Results:", toolResults);
+    prompt: `${lastUserMessage} Create the content in the following JSON format:
 
-      // 추가적인 프롬프트 생성
-      if (toolResults[0]?.toolName === "getBillions") {
-        const status = toolResults[0]?.result?.status;
-        const additionalPrompt = `Based on the tool results: ${toolResults}, ${
-          status === "success" ? "통신 성공을 출력" : "통신 실패를 출력"
-        }`;
-        // 새로운 메시지를 추가하여 다음 단계에 전달
-        messages.push({ role: "system", content: additionalPrompt });
-      }
-    },
+    The keys to define in the JSON will be completed by referring to ${alertSchema}.
+    We will complete the JSON based on the input ${lastUserMessage}.
+
+    I'll show you a few examples related to this.
+
+    Q. If asked to show only Jira type events, output the following JSON:
+    A.
+    {
+      "type": "jira"
+    }
+
+    Q. If asked to show only those with type alert and status ready:
+    A.
+    {
+      "type": "alert",
+      "status": "ready"
+    }
+
+    Provide the answer in JSON like this.
+        `,
+    tools,
+    // maxSteps: 3, // 최대 5단계로 나누기
+    // async onStepFinish({ text, toolCalls, toolResults, finishReason, usage }) {
+    //   console.log("Step finished");
+    //   console.log(text);
+    // },
     async onFinish({ text, toolCalls, toolResults, usage, finishReason }) {
-      console.log("onFinish");
-      console.log(toolCalls);
-      console.log(text);
-      //await saveChat({ lastUserMessage, text, toolCalls, toolResults });
+      const message = await saveChat({
+        chatId,
+        lastUserMessage,
+        text,
+        toolCalls,
+        toolResults,
+      });
     },
   });
-
-  // console.log("steps");
-  // console.log(steps);
-  // const result = streamText({
-  //   model: bedrock("anthropic.claude-3-5-sonnet-20240620-v1:0"),
-  //   maxTokens: 1000,
-  //   experimental_providerMetadata: {
-  //     bedrock: {
-  //       guardrailConfig: {
-  //         guardrailIdentifier: "tqyhctgczmdp",
-  //         guardrailVersion: "1",
-  //         trace: "enabled" as const,
-  //         streamProcessingMode: "async",
-  //       },
-  //     },
-  //   },
-  //   system: "You are a friendly assistant!",
-  //   messages,
-  //   tools,
-  // });
 
   return result.toDataStreamResponse();
 }

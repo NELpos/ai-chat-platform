@@ -2,56 +2,76 @@
 import { tool as createTool } from "ai";
 import { z } from "zod";
 
-export const weatherTool = createTool({
-  description: "Display the weather for a location",
-  parameters: z.object({
-    location: z.string().describe("The location to get the weather for"),
-  }),
-  execute: async function ({ location }) {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    return { weather: "Sunny", temperature: 75, location };
-  },
-});
+// export const weatherTool = createTool({
+//   description: "Display the weather for a location",
+//   parameters: z.object({
+//     location: z.string().describe("The location to get the weather for"),
+//   }),
+//   execute: async function ({ location }) {
+//     await new Promise((resolve) => setTimeout(resolve, 2000));
+//     return { weather: "Sunny", temperature: 75, location };
+//   },
+// });
+export type QueryConditions = {
+  type?: string;
+  status?: string;
+  priority?: string;
+  title?: { contains: string };
+  description?: { contains: string };
+};
 
-export const stockTool = createTool({
-  description: "Get price for a stock",
+export const getAlertsTool = createTool({
+  description:
+    "Finds Alerts based on the parameter information provided by the user's specified conditions",
   parameters: z.object({
-    symbol: z.string(),
+    type: z
+      .string()
+      .transform((val) => val.toLowerCase())
+      .describe("The type of the alert")
+      .optional(),
+    status: z
+      .string()
+      .transform((val) => val.toLowerCase())
+      .describe("The status of the alert")
+      .optional(),
+    priority: z
+      .string()
+      .transform((val) => val.toLowerCase())
+      .describe("The priority of the alert")
+      .optional(),
+    title: z.string().describe("The title of the alert").optional(),
+    description: z.string().describe("The description of the alert").optional(),
   }),
-  execute: async function ({ symbol }) {
-    // Simulated API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    return { symbol, price: 100 };
-  },
-});
+  execute: async function ({ type, status, priority, title, description }) {
+    // 소문자 변환이 필요 없음
+    try {
+      const queryConditions: QueryConditions = {};
+      if (type) {
+        queryConditions.type = type;
+      }
+      if (status) {
+        queryConditions.status = status;
+      }
+      if (priority) {
+        queryConditions.priority = priority;
+      }
 
-export const billionsTool = createTool({
-  description: "Get net worth for a person",
-  parameters: z.object({
-    name: z.string(),
-  }),
-  execute: async function ({ name }) {
-    // Simulated API call
-
-    const response = await fetch(
-      "https://billions-api.nomadcoders.workers.dev/"
-    );
-    const data = await response.json();
-    const person = data.find(
-      (person: { name: string }) => person.name === name
-    );
-    const { netWorth, name: personName } = person;
-    if (!person) {
-      return { name, status: "failed", netWorth: 0 };
+      if (title && title !== undefined) {
+        queryConditions.title = { contains: title };
+      }
+      if (description && description !== undefined) {
+        queryConditions.description = { contains: description };
+      }
+      return { queryConditions };
+    } catch (error) {
+      return { error: "Failed to fetch alerts" };
     }
-    //await new Promise((resolve) => setTimeout(resolve, 2000));
-    return { name, status: "success", netWorth: netWorth };
   },
 });
 
 // Update the tools object
 export const tools = {
-  displayWeather: weatherTool,
-  getStockPrice: stockTool,
-  getBillions: billionsTool,
+  // displayWeather: weatherTool,
+  // getBillions: billionsTool,
+  getAlerts: getAlertsTool,
 };

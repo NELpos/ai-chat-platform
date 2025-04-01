@@ -14,12 +14,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
-import { DataTableRowActions } from "@/components/ui/data-table/data-table-row-actions";
+import { DataTableColumnHeader } from "@/app/alerts/components/data-table/data-table-column-header";
+// import { DataTableRowActions } from "@/components/ui/data-table/data-table-row-actions";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type Alert = {
+export type AlertSchema = {
   id: number;
   title: string;
   status:
@@ -37,9 +37,10 @@ export type Alert = {
   type: "alert" | "jira";
 };
 
-export const columns: ColumnDef<Alert>[] = [
+export const columns: ColumnDef<AlertSchema>[] = [
   {
     id: "select",
+    accessorKey: "select",
     header: ({ table }) => (
       <Checkbox
         checked={
@@ -61,59 +62,89 @@ export const columns: ColumnDef<Alert>[] = [
     enableHiding: false,
   },
   {
+    id: "id",
     accessorKey: "id",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Task" />
+      <DataTableColumnHeader column={column} title="ID" />
     ),
     cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: false,
   },
   {
+    id: "title",
     accessorKey: "title",
     header: "Title",
   },
   {
+    id: "description",
     accessorKey: "description",
     header: "Description",
   },
   {
+    id: "priority",
     accessorKey: "priority",
-    header: "Priority",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Priority" />
+    ),
+    cell: ({ row }) => (
+      <div className="w-[80px]">{row.getValue("priority")}</div>
+    ),
+    meta: {
+      filterVariant: "select",
+    },
+    enableSorting: true,
   },
   {
+    id: "status",
     accessorKey: "status",
-    header: "Status",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Status" />
+    ),
+    cell: ({ row }) => <div className="w-[80px]">{row.getValue("status")}</div>,
+    meta: {
+      filterVariant: "select",
+    },
+    enableSorting: true,
   },
   {
+    id: "type",
     accessorKey: "type",
+    meta: {
+      filterVariant: "select",
+    },
     header: "Type",
   },
   {
-    id: "actions",
-    cell: ({ row }) => {
-      const alert = row.original;
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(alert.id.toString())}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    id: "user",
+    accessorKey: "user.username",
+    header: "Assignee",
   },
+  // {
+  //   accessorKey: "actions",
+  //   cell: ({ row }) => {
+  //     const alert = row.original;
+  //     return (
+  //       <DropdownMenu>
+  //         <DropdownMenuTrigger asChild>
+  //           <Button variant="ghost" className="h-8 w-8 p-0">
+  //             <span className="sr-only">Open menu</span>
+  //             <MoreHorizontal className="h-4 w-4" />
+  //           </Button>
+  //         </DropdownMenuTrigger>
+  //         <DropdownMenuContent align="end">
+  //           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+  //           <DropdownMenuItem
+  //             onClick={() => navigator.clipboard.writeText(alert.id.toString())}
+  //           >
+  //             Copy payment ID
+  //           </DropdownMenuItem>
+  //           <DropdownMenuSeparator />
+  //           <DropdownMenuItem>View customer</DropdownMenuItem>
+  //           <DropdownMenuItem>View payment details</DropdownMenuItem>
+  //         </DropdownMenuContent>
+  //       </DropdownMenu>
+  //     );
+  //   },
+  // },
 ];

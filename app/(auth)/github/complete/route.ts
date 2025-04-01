@@ -7,7 +7,7 @@ const loginProccess = async (id: number) => {
   const session = await getSession();
   session.id = id;
   await session.save();
-  return redirect("/chat");
+  return redirect("/dashboard");
 };
 
 export async function GET(request: NextRequest) {

@@ -23,12 +23,16 @@ export const BillionsWidget = ({ name, netWorth, status }: BillionsProps) => {
           <div className="flex items-center">
             <div>
               <p className="text-2xl font-bold">${netWorth.toLocaleString()}</p>
-              <p className="text-sm text-muted-foreground capitalize">
-                {status}
-              </p>
             </div>
           </div>
         </div>
+        {/* Add a satisfaction button */}
+        <div className="flex justify-center mt-4">
+          <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            만족
+          </button>
+        </div>
+
         {/* <div className="flex justify-between">
               {weather.forecast.map((day, index) => (
                 <div key={index} className="text-center">
